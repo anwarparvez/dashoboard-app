@@ -4,16 +4,14 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
 
 
 model User {
@@ -67,4 +65,108 @@ model VerificationToken {
 enum Role {
   ADMIN
   USER
+}
+
+
+model BandwidthCapacity {
+  id          String   @id @default(uuid())
+  linkType    String   // SEA-ME-WE-4, SEA-ME-WE-5, ITC
+  capacityGb  Int
+  direction   String   // Upstream
+  recordedAt  DateTime @default(now())
+}
+
+
+model Customer {
+  id            String   @id @default(uuid())
+  name          String
+  customerType  String   // ISP, GOVT, IPTSP, IIG
+  email         String?
+  phone         String?
+  status        String   // ACTIVE, INACTIVE
+  createdAt    DateTime @default(now())
+
+  services      ServiceSubscription[]
+  bills         Bill[]
+  vpnClients   VPNClient[]
+}
+
+model ServiceSubscription {
+  id          String   @id @default(uuid())
+  customerId  String
+  serviceType String   // GPON, Copper, VPN, Alaap, NIX
+  accessType  String?  // Only Internet, Combo, Only Tel
+  active      Boolean  @default(true)
+
+  customer    Customer @relation(fields: [customerId], references: [id])
+}
+
+model TrafficStat {
+  id            String   @id @default(uuid())
+  trafficType   String   // IGW, ICX, ANS
+  direction     String   // Incoming, Outgoing
+  operatorName  String
+  totalCalls    Int
+  totalMinutes  Float
+  reportDate    DateTime
+}
+
+model AlaapStat {
+  id               String   @id @default(uuid())
+  metric           String   // signup, recharge, call, sms
+  value            BigInt
+  reportDate       DateTime
+}
+
+
+model Bill {
+  id            String   @id @default(uuid())
+  customerId    String
+  amount        Float
+  vat           Float
+  totalAmount   Float
+  billMonth     String   // Dec-2025
+  status        String   // PAID, DUE
+
+  customer      Customer @relation(fields: [customerId], references: [id])
+}
+
+
+model Payment {
+  id            String   @id @default(uuid())
+  channel       String   // Bank, bKash, Nagad, EKPay, Alaap
+  amount        Float
+  btclPortion   Float
+  vat           Float
+  paymentDate   DateTime
+}
+
+
+model RegionalFinance {
+  id            String   @id @default(uuid())
+  region        String   // CTR, DTR East, North, South
+  dgmOffice     String
+  issuedAmount  Float
+  collected     Float
+  dueAmount     Float
+  reportDate    DateTime
+}
+
+
+model DomainStat {
+  id            String   @id @default(uuid())
+  tld           String   // .bd, .com.bd, .edu.bd
+  registered    Int
+  parked        Int
+  reportDate    DateTime
+}
+
+
+model VPNClient {
+  id              String   @id @default(uuid())
+  customerId      String
+  activeLinks     Int
+  totalBandwidth  Int
+
+  customer        Customer @relation(fields: [customerId], references: [id])
 }
