@@ -1,15 +1,31 @@
 import { Role } from "@prisma/client";
+import { hashSync } from "bcryptjs";
+
 export const seedData = {
   users: [
     {
       name: "Admin User",
       email: "admin@btcl.gov.bd",
+      password: hashSync("123456", 10),
       role: Role.ADMIN,
+    },
+    {
+      name: "Manager User",
+      email: "manager@btcl.gov.bd",
+      password: hashSync("123456", 10),
+      role: Role.MANAGER,
     },
     {
       name: "Operations User",
       email: "ops@btcl.gov.bd",
-      role: Role.USER,
+      password: hashSync("123456", 10),
+      role: Role.OPERATOR,
+    },
+    {
+      name: "Viewer User",
+      email: "viewer@btcl.gov.bd",
+      password: hashSync("123456", 10),
+      role: Role.VIEWER,
     },
   ],
   customers: [

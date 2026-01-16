@@ -95,7 +95,7 @@ function SectionHeader({ title }: { title: string }) {
 
 function PlaceholderCard({ title }: { title: string }) {
   return (
-    <Card className="h-[260px] rounded-2xl flex items-center justify-center text-muted-foreground">
+    <Card className="h-65 rounded-2xl flex items-center justify-center text-muted-foreground">
       {title} (Chart)
     </Card>
   );

@@ -4,7 +4,6 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/db/prisma";
 import bcrypt from "bcryptjs";
 
-
 /* ===============================
    NEXTAUTH CONFIG
 ================================ */
@@ -39,7 +38,7 @@ export const authOptions: NextAuthOptions = {
 
         const isValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password,
         );
 
         if (!isValid) {
@@ -83,6 +82,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: "/login",
+    error: "/login",
   },
 
   secret: process.env.NEXTAUTH_SECRET,
@@ -91,5 +91,4 @@ export const authOptions: NextAuthOptions = {
 /* ===============================
    HANDLER
 ================================ */
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);

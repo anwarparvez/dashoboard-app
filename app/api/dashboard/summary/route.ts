@@ -1,10 +1,34 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { prisma } from "@/db/prisma";
 
 export async function GET() {
   try {
+    /* ===============================
+       AUTHENTICATION
+    ================================ */
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      console.error("No session found");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    /* ===============================
+       RBAC AUTHORIZATION
+       Allowed: ADMIN, MANAGER
+    ================================ */
+    const allowedRoles = ["ADMIN", "MANAGER"];
+
+    if (!allowedRoles.includes(session.user.role)) {
+      console.error("Forbidden role:", session.user.role);
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    /* ===============================
+       DASHBOARD AGGREGATIONS
+    ================================ */
     const [
       totalUsers,
       totalCustomers,

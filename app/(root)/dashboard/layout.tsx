@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 
-export default function DashboardLayout({
+export default  function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,10 +14,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header onMenuClick={() => setSidebarOpen(true)} />
-
-      <div className="flex flex-1">
+<>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Content Area */}
@@ -30,9 +27,6 @@ export default function DashboardLayout({
             <div className="mt-2">{children}</div>
           </main>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+</>
   );
 }
