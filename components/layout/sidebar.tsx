@@ -1,69 +1,52 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  Server,
-  Settings,
-} from "lucide-react";
-
-const navItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Users",
-    href: "/dashboard/users",
-    icon: Users,
-  },
-  {
-    title: "Infrastructure",
-    href: "/dashboard/infrastructure",
-    icon: Server,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-];
-
-export function Sidebar() {
-  const pathname = usePathname();
-
+export function Sidebar({
+  open,
+  onClose,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+}) {
   return (
-    <aside className="w-64 border-r border-border bg-sidebar text-sidebar-foreground">
-      <div className="h-16 flex items-center px-6 font-semibold">
-        BTCL Dashboard
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      <nav className="space-y-1 px-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = pathname === item.href;
+      <aside
+        className={`
+          fixed left-0 z-50 w-64 bg-background border-r p-4
+          top-16 h-[calc(100vh-4rem)]
+          transform transition-transform
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+        `}
+      >
+        <nav className="space-y-2 text-sm">
+          <NavItem label="Dashboard" />
+          <NavItem label="IGW" />
+          <NavItem label="ICX" />
+          <NavItem label="Domain" />
+          <NavItem label="PSTN + GPON" />
+          <NavItem label="VPN" />
+          <NavItem label="LLI" />
+          <NavItem label="Transmission" />
+          <NavItem label="Tower Sharing" />
+          <NavItem label="NIX" />
+        </nav>
+      </aside>
+    </>
+  );
+}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "hover:bg-sidebar-accent/50"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+function NavItem({ label }: { label: string }) {
+  return (
+    <div className="px-3 py-2 rounded-lg cursor-pointer hover:bg-muted">
+      {label}
+    </div>
   );
 }

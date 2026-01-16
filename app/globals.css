@@ -8,28 +8,53 @@
   --color-foreground: var(--foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 }
 
+[data-radix-popper-content-wrapper] {
+  backdrop-filter: blur(8px);
+}
+/* ===============================
+   LIGHT THEME (BTCL GREEN)
+================================ */
 :root {
   --radius: 0.625rem;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.18 0.02 145);
+
+  --primary: oklch(0.62 0.16 145);           /* BTCL Green */
+  --primary-foreground: oklch(0.98 0 0);
+
   --border: oklch(0.9 0.02 145);
-  --ring: oklch(0.6 0.14 145);
+  --ring: oklch(0.62 0.16 145);
 }
 
+/* ===============================
+   DARK THEME
+================================ */
 .dark {
   --background: oklch(0.15 0.02 145);
   --foreground: oklch(0.97 0.01 145);
+
+  --primary: oklch(0.7 0.18 145);            /* Brighter green */
+  --primary-foreground: oklch(0.15 0.02 145);
+
   --border: oklch(1 0 0 / 10%);
-  --ring: oklch(0.7 0.14 145);
+  --ring: oklch(0.7 0.18 145);
 }
 
+/* ===============================
+   BASE LAYER
+================================ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
   }
 }
