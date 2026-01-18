@@ -1,4 +1,5 @@
 import { prisma } from "@/db/prisma";
+import { User } from "@prisma/client";
 
 export default async function UsersPage() {
   const users = await prisma.user.findMany();
@@ -13,7 +14,7 @@ export default async function UsersPage() {
         </tr>
       </thead>
       <tbody>
-        {users.map((u) => (
+        {users.map((u :User) => (
           <tr key={u.id}>
             <td className="p-2">{u.name}</td>
             <td className="p-2">{u.email}</td>
