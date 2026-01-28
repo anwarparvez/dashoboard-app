@@ -1,133 +1,118 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/db/prisma";
+"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import IGWCharts from "./igw/igw_shadcn_charts";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import IGWLocalOperatorChart from "./igw/local-operator-card";
+import IGWIntCrrierChart from "./igw/international-carrier-card";
 
-export default async function DashboardPage() {
-  /* ===============================
-     AUTHENTICATION
-  ================================ */
-  const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  /* ===============================
-     RBAC (Adjust if needed)
-  ================================ */
-  if (!["ADMIN", "MANAGER"].includes(session.user.role)) {
-    redirect("/unauthorized");
-  }
-
-  /* ===============================
-     DASHBOARD DATA (SERVER-SIDE)
-  ================================ */
-  const [
-    totalUsers,
-    totalCustomers,
-    totalBandwidth,
-    totalVpnClients,
-    totalRevenue,
-    totalDue,
-  ] = await Promise.all([
-    prisma.user.count(),
-    prisma.customer.count(),
-
-    prisma.bandwidthCapacity.aggregate({
-      _sum: { capacityGb: true },
-    }),
-
-    prisma.vPNClient.count(),
-
-    prisma.bill.aggregate({
-      _sum: { totalAmount: true },
-      where: { status: "PAID" },
-    }),
-
-    prisma.bill.aggregate({
-      _sum: { totalAmount: true },
-      where: { status: "DUE" },
-    }),
-  ]);
-
-  const data = {
-    users: totalUsers,
-    customers: totalCustomers,
-    bandwidthGb: totalBandwidth._sum.capacityGb ?? 0,
-    vpnClients: totalVpnClients,
-    revenue: totalRevenue._sum.totalAmount ?? 0,
-    due: totalDue._sum.totalAmount ?? 0,
-  };
-
-  /* ===============================
-     UI
-  ================================ */
+export default function DashboardHome() {
   return (
-    <>
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Users</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold">
-            {data.users}
-          </CardContent>
-        </Card>
+    <div className="space-y-6 p-6">
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Customers</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold">
-            {data.customers}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Bandwidth Capacity (Gbps)</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold">
-            {data.bandwidthGb}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>VPN Clients</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold">
-            {data.vpnClients}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold text-green-600">
-            ৳ {data.revenue.toLocaleString()}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Due</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-bold text-red-600">
-            ৳ {data.due.toLocaleString()}
-          </CardContent>
-        </Card>
+      {/* Top KPI Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Kpi title="Total Revenue" value="৳ 125.6 Cr" />
+        <Kpi title="Total Traffic" value="8.2 B Min" />
+        <Kpi title="Active Users" value="4.8 M" />
+        <Kpi title="Active Alerts" value="7" badge="Critical" />
       </div>
 
-      <div className="mt-8">
-        <IGWCharts />
-      </div>
-    </>
+      {/* Service Navigation */}
+      <Tabs defaultValue="igw" className="w-full">
+        <TabsList className="flex flex-wrap">
+          <TabsTrigger value="igw">IGW</TabsTrigger>
+          <TabsTrigger value="icx">ICX</TabsTrigger>
+          <TabsTrigger value="domain">Domain</TabsTrigger>
+          <TabsTrigger value="pstn">PSTN + GPON</TabsTrigger>
+          <TabsTrigger value="vpn">VPN</TabsTrigger>
+          <TabsTrigger value="lli">LLI</TabsTrigger>
+        </TabsList>
+
+        {/* IGW Section */}
+        <TabsContent value="igw" className="space-y-6">
+          <SectionHeader title="IGW – Voice Services" />
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Kpi title="Incoming Minutes" value="6.1 M" />
+            <Kpi title="Outgoing Minutes" value="5.3 M" />
+            <Kpi title="ASR" value="42.3%" />
+            <Kpi title="ACD" value="128 sec" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <IGWLocalOperatorChart />
+            <IGWIntCrrierChart />
+          </div>
+
+          <PlaceholderTable title="Carrier / Operator Details" />
+        </TabsContent>
+
+        {/* Domain Section */}
+        <TabsContent value="domain" className="space-y-6">
+          <SectionHeader title="Domain Services" />
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Kpi title="Active Domains" value="124,560" />
+            <Kpi title="New Registration" value="1,230" />
+            <Kpi title="Renewals" value="980" />
+            <Kpi title="Expired" value="72" badge="Alert" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PlaceholderCard title="Registration Trend" />
+            <PlaceholderCard title="Domain Type Split" />
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Global Alert Strip */}
+      <Card className="border-l-4 border-red-500">
+        <CardContent className="p-4 text-sm">
+          ⚠️ Critical Alerts: IGW Carrier Down | GPON Fault Zone-3 | NIX High Load
+        </CardContent>
+      </Card>
+
+    </div>
+  );
+}
+
+function Kpi({ title, value, badge }: { title: string; value: string; badge?: string }) {
+  return (
+    <Card className="rounded-2xl">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex items-center justify-between">
+        <span className="text-2xl font-bold">{value}</span>
+        {badge && <Badge variant="destructive">{badge}</Badge>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function SectionHeader({ title }: { title: string }) {
+  return <h2 className="text-xl font-semibold">{title}</h2>;
+}
+
+function PlaceholderCard({ title }: { title: string }) {
+  return (
+    <Card className="h-65 rounded-2xl flex items-center justify-center text-muted-foreground">
+      {title} (Chart)
+    </Card>
+  );
+}
+
+function PlaceholderTable({ title }: { title: string }) {
+  return (
+    <Card className="rounded-2xl">
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-muted-foreground">
+        Table will be here
+      </CardContent>
+    </Card>
   );
 }

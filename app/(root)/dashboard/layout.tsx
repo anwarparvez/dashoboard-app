@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 
 export default  function DashboardLayout({

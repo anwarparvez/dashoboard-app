@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import IGWLocalOperatorChart from "../igw/local-operator-card";
+import IGWIntCrrierChart from "../igw/international-carrier-card";
 
 export default function DashboardHome() {
   return (
@@ -39,8 +41,9 @@ export default function DashboardHome() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PlaceholderCard title="Incoming vs Outgoing" />
-            <PlaceholderCard title="Carrier-wise Minutes" />
+            <IGWLocalOperatorChart />
+
+            <IGWIntCrrierChart />
           </div>
 
           <PlaceholderTable title="Carrier / Operator Details" />
